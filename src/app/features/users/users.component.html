@@ -1,0 +1,230 @@
+<div>
+  <!-- ── ENCABEZADO  -->
+  <div class="page-header">
+    <h1 class="page-title">Usuarios <span>del Sistema</span></h1>
+    <button class="btn btn-primary" (click)="openCreate()">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+      >
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      Nuevo Usuario
+    </button>
+  </div>
+
+  <!-- TABLA  -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">{{ filtered.length }} usuarios</span>
+
+      <!-- Búsqueda -->
+      <div class="search-wrap">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Buscar usuario..."
+          (input)="onSearch($any($event.target).value)"
+        />
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="empty">
+        <div class="empty-icon">⏳</div>
+        <p>Cargando...</p>
+      </div>
+    } @else if (filtered.length === 0) {
+      <div class="empty">
+        <div class="empty-icon">👥</div>
+        <p>No hay usuarios</p>
+      </div>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filtered; track user.id) {
+            <tr>
+              <td>
+                <div class="cell-user">
+                  <div class="avatar">{{ initials(user.name) }}</div>
+                  {{ user.name }}
+                </div>
+              </td>
+              <td style="color: var(--text2)">{{ user.email }}</td>
+              <td>
+                <span class="badge" [class]="roleBadge[user.role]">
+                  {{ roleLabel[user.role] || user.role }}
+                </span>
+              </td>
+              <td style="color: var(--text2)">{{ user.phone || '—' }}</td>
+              <td>
+                <div style="display: flex; gap: 6px">
+                  <button class="btn btn-ghost btn-sm" (click)="openEdit(user)">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                    Editar
+                  </button>
+                  <button class="btn btn-danger btn-sm" (click)="onDelete(user)">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polyline points="3 6 5 6 21 6" />
+                      <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      />
+                    </svg>
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
+
+<!-- MODAL CREAR / EDITAR -->
+@if (showModal) {
+  <div class="overlay" (click)="closeModal()">
+    <!-- stopPropagation evita que al hacer clic adentro se cierre el modal -->
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          {{ selectedUser ? 'Editar Usuario' : 'Nuevo Usuario' }}
+        </h2>
+        <button class="modal-close" (click)="closeModal()">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Error del backend -->
+      @if (error) {
+        <div
+          style="
+            background: #fdecea;
+            border: 1px solid #f5c6c2;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #c0392b;
+            margin-bottom: 16px;
+          "
+        >
+          {{ error }}
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSave()">
+        <div class="form-grid">
+          <!-- Nombre -->
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" formControlName="name" placeholder="Dr. Ana García" />
+            @if (isInvalid('name')) {
+              <span style="font-size: 11px; color: #c0392b">{{ getError('name') }}</span>
+            }
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" placeholder="correo@ejemplo.com" />
+            @if (isInvalid('email')) {
+              <span style="font-size: 11px; color: #c0392b">{{ getError('email') }}</span>
+            }
+          </div>
+
+          <!-- Rol -->
+          <div class="form-group">
+            <label>Rol</label>
+            <select formControlName="role">
+              @for (r of roles; track r.value) {
+                <option [value]="r.value">{{ r.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" formControlName="phone" placeholder="310-555-0101" />
+          </div>
+
+          <!-- Contraseña (solo al crear) -->
+          @if (!selectedUser) {
+            <div class="form-group">
+              <label>Contraseña</label>
+              <input type="password" formControlName="password" placeholder="Mínimo 6 caracteres" />
+              @if (isInvalid('password')) {
+                <span style="font-size: 11px; color: #c0392b">{{ getError('password') }}</span>
+              }
+            </div>
+          }
+
+          <!-- Dirección -->
+          <div class="form-group" [class.full]="!selectedUser">
+            <label>Dirección</label>
+            <input type="text" formControlName="address" placeholder="Calle 123..." />
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving">
+            {{ saving ? 'Guardando...' : selectedUser ? 'Guardar cambios' : 'Crear usuario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+.pub-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  background: #f5f0eb;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.pub-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(193, 127, 62, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 10%, rgba(193, 127, 62, 0.08) 0%, transparent 50%);
+}
+
+.pub-card {
+  background: #fffdf9;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow:
+    0 8px 48px rgba(44, 35, 24, 0.14),
+    0 1px 0 rgba(193, 127, 62, 0.15);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  animation: cardIn 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pub-header {
+  background: #2c2318;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pub-clinic-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: #f5f0eb;
+}
+
+.pub-clinic-logo span {
+  color: #c17f3e;
+  font-style: italic;
+}
+
+.pub-clinic-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #9e8e7e;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.pub-hero {
+  padding: 32px 24px 24px;
+  text-align: center;
+  background: linear-gradient(180deg, #f5ede2 0%, #fffdf9 100%);
+}
+
+.pub-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  background: #c17f3e;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  letter-spacing: -1px;
+  box-shadow: 0 4px 20px rgba(193, 127, 62, 0.35);
+}
+
+.pub-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  letter-spacing: -1px;
+  margin-bottom: 6px;
+  color: #2c2318;
+}
+
+.pub-identifier {
+  font-family: monospace;
+  font-size: 11px;
+  color: #7a6a58;
+  background: #f0ebe4;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.pub-section {
+  padding: 20px 24px;
+  border-top: 1px solid #e0d8ce;
+}
+
+.pub-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #7a6a58;
+  margin-bottom: 14px;
+}
+
+.pub-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.pub-item {
+  background: #f5f0eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pub-item-full {
+  grid-column: 1/-1;
+}
+
+.pub-item-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #7a6a58;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pub-item-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #2c2318;
+}
+
+.pub-phone {
+  color: #c17f3e;
+  text-decoration: none;
+}
+.pub-phone:hover {
+  text-decoration: underline;
+}
+
+.pub-obs {
+  background: #fff8f0;
+}
+.pub-obs-text {
+  font-size: 14px;
+  color: #2c2318;
+  line-height: 1.6;
+}
+
+.pub-footer {
+  padding: 14px 24px;
+  text-align: center;
+  font-size: 11px;
+  color: #7a6a58;
+  background: #f5f0eb;
+  border-top: 1px solid #e0d8ce;
+}
+
+.pub-error-card {
+  padding: 48px 32px;
+  text-align: center;
+}
+.pub-error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+.pub-error-card h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: #2c2318;
+}
+.pub-error-card p {
+  font-size: 14px;
+  color: #7a6a58;
+}
+
+.pub-loading {
+  text-align: center;
+  z-index: 1;
+  color: #7a6a58;
+}
+
+.pub-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e0d8ce;
+  border-top-color: #c17f3e;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

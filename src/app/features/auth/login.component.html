@@ -1,0 +1,126 @@
+<div class="login-page">
+  <!-- Panel Izquierdo (branding) -->
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="login-brand-logo">Vet<span>Care</span></div>
+      <div class="login-brand-tagline">Sistema de Gestión Veterinaria</div>
+
+      <div class="login-features">
+        @for (feature of features; track feature) {
+          <div class="login-feature">
+            <div class="login-feature-dot"></div>
+            <span class="login-feature-text">{{ feature }}</span>
+          </div>
+        }
+      </div>
+    </div>
+    <div class="login-paw">🐾</div>
+  </div>
+
+  <!-- Panel Derecho -->
+  <div class="login-right">
+    <div class="login-card">
+      <h1 class="login-card-title">Bienvenido de <span>vuelta</span></h1>
+      <p class="login-card-sub">Ingresa tus credenciales para continuar</p>
+
+      <!-- [formGroup] conecta el formulario HTML con el objeto form del .ts -->
+      <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- Mensaje de error del backend -->
+        @if (error) {
+          <div class="lf-error">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+            {{ error }}
+          </div>
+        }
+
+        <!-- Campo Email -->
+        <div class="lf-group">
+          <label class="lf-label">Correo Electrónico</label>
+          <div class="lf-input-wrap">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <!-- formControlName conecta este input con el campo "email" del formulario -->
+            <input
+              class="lf-input"
+              [class.error]="isInvalid('email')"
+              type="email"
+              formControlName="email"
+              placeholder="correo@ejemplo.com"
+            />
+          </div>
+          <!-- Mensaje de validación — solo aparece si el campo es inválido y fue tocado -->
+          @if (isInvalid('email')) {
+            <span class="lf-field-error">{{ getError('email') }}</span>
+          }
+        </div>
+
+        <!-- Campo Contraseña -->
+        <div class="lf-group">
+          <label class="lf-label">Contraseña</label>
+          <div class="lf-input-wrap">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <input
+              class="lf-input"
+              [class.error]="isInvalid('password')"
+              type="password"
+              formControlName="password"
+              placeholder="••••••••"
+            />
+          </div>
+          @if (isInvalid('password')) {
+            <span class="lf-field-error">{{ getError('password') }}</span>
+          }
+        </div>
+
+        <!-- Recordarme / Olvidé contraseña -->
+        <div class="lf-row">
+          <label class="lf-remember"> <input type="checkbox" /> Recordarme </label>
+          <button type="button" class="lf-forgot">¿Olvidaste tu contraseña?</button>
+        </div>
+
+        <!-- Botón submit — se deshabilita mientras carga -->
+        <button class="lf-submit" type="submit" [disabled]="loading">
+          @if (loading) {
+            <span style="display: flex; align-items: center; justify-content: center; gap: 10px">
+              <span class="spin"></span>
+              Verificando...
+            </span>
+          } @else {
+            Iniciar Sesión
+          }
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
