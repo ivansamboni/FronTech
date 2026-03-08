@@ -32,6 +32,8 @@ export class UsersService {
     return this.http.put<User>(`${this.apiUrl}/${id}`, payload);
   }
 
+  
+
   remove(id: number): Observable<void> {
    // mockUsers = mockUsers.filter((u) => u.id !== id);
     //return of(void 0);

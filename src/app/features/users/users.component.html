@@ -20,7 +20,7 @@
   <!-- TABLA  -->
   <div class="section">
     <div class="section-header">
-      <span class="section-title">{{ filtered.length }} usuarios</span>
+      <span class="section-title">{{ filtered().length }} usuarios</span>
 
       <!-- Búsqueda -->
       <div class="search-wrap">
@@ -44,12 +44,12 @@
       </div>
     </div>
 
-    @if (loading) {
+    @if (loading()) {
       <div class="empty">
         <div class="empty-icon">⏳</div>
         <p>Cargando...</p>
       </div>
-    } @else if (filtered.length === 0) {
+    } @else if (filtered().length === 0) {
       <div class="empty">
         <div class="empty-icon">👥</div>
         <p>No hay usuarios</p>
@@ -62,11 +62,12 @@
             <th>Email</th>
             <th>Rol</th>
             <th>Teléfono</th>
+            <th>Dirección</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          @for (user of filtered; track user.id) {
+          @for (user of filtered(); track user.id) {
             <tr>
               <td>
                 <div class="cell-user">
@@ -74,13 +75,14 @@
                   {{ user.name }}
                 </div>
               </td>
-              <td style="color: var(--text2)">{{ user.email }}</td>
+              <td style="color: var(--text2)">{{ user.email }}</td>             
               <td>
                 <span class="badge" [class]="roleBadge[user.role]">
                   {{ roleLabel[user.role] || user.role }}
                 </span>
               </td>
               <td style="color: var(--text2)">{{ user.phone || '—' }}</td>
+              <td style="color: var(--text2)">{{ user.address }}</td>
               <td>
                 <div style="display: flex; gap: 6px">
                   <button class="btn btn-ghost btn-sm" (click)="openEdit(user)">
@@ -124,13 +126,13 @@
 </div>
 
 <!-- MODAL CREAR / EDITAR -->
-@if (showModal) {
+@if (showModal()) {
   <div class="overlay" (click)="closeModal()">
     <!-- stopPropagation evita que al hacer clic adentro se cierre el modal -->
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h2 class="modal-title">
-          {{ selectedUser ? 'Editar Usuario' : 'Nuevo Usuario' }}
+          {{ selectedUser() ? 'Editar Usuario' : 'Nuevo Usuario' }}
         </h2>
         <button class="modal-close" (click)="closeModal()">
           <svg
@@ -147,7 +149,7 @@
       </div>
 
       <!-- Error del backend -->
-      @if (error) {
+      @if (error()) {
         <div
           style="
             background: #fdecea;
@@ -159,7 +161,7 @@
             margin-bottom: 16px;
           "
         >
-          {{ error }}
+          {{ error() }}
         </div>
       }
 
@@ -200,7 +202,7 @@
           </div>
 
           <!-- Contraseña (solo al crear) -->
-          @if (!selectedUser) {
+          @if (!selectedUser()) {
             <div class="form-group">
               <label>Contraseña</label>
               <input type="password" formControlName="password" placeholder="Mínimo 6 caracteres" />
@@ -220,8 +222,8 @@
         <!-- Botones -->
         <div class="form-actions">
           <button type="button" class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary" [disabled]="saving">
-            {{ saving ? 'Guardando...' : selectedUser ? 'Guardar cambios' : 'Crear usuario' }}
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Guardando...' : selectedUser() ? 'Guardar cambios' : 'Crear usuario' }}
           </button>
         </div>
       </form>
