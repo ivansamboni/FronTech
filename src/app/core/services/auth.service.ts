@@ -13,7 +13,8 @@ export class AuthService {
   currentUser = signal<AuthUser | null>(null);
 
   private readonly TOKEN_KEY = 'FronTech';
-  private readonly apiUrl = `${environment.apiUrl}/auth`;
+  private readonly USER_KEY = 'FronTech_user';
+  private readonly apiUrl = `${environment.apiUrl}/users/login`;
 
   constructor(
     private http: HttpClient,
@@ -22,31 +23,19 @@ export class AuthService {
     this.loadUserFromStorage();
   }
 
-  // login(credentials: LoginCredentials): Observable<LoginResponse> {
-  //   return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
-  //     tap(response => {
-  //       localStorage.setItem(this.TOKEN_KEY, response.token);
-  //       this.currentUser.set(response.user);
-  //     })
-  //   );
-  // }
   login(credentials: LoginCredentials): Observable<LoginResponse> {
-    const fakeResponse: LoginResponse = {
-      token: 'fake-token-123',
-      user: {
-        id: 1,
-        name: 'Dr. Ana García',
-        email: credentials.email,
-        role: 'veterinarian',
-      },
-    };
-    localStorage.setItem(this.TOKEN_KEY, fakeResponse.token);
-    this.currentUser.set(fakeResponse.user);
-    return of(fakeResponse);
+    return this.http.post<LoginResponse>(this.apiUrl, credentials).pipe(
+      tap((response) => {
+        localStorage.setItem(this.TOKEN_KEY, response.token);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(response.user)); // ✅ guarda usuario
+        this.currentUser.set(response.user);
+      }),
+    );
   }
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
@@ -62,5 +51,10 @@ export class AuthService {
   private loadUserFromStorage(): void {
     const token = this.getToken();
     if (!token) return;
+
+    const raw = localStorage.getItem(this.USER_KEY);
+    if (raw) {
+      this.currentUser.set(JSON.parse(raw)); // ✅ restaura usuario al recargar
+    }
   }
 }

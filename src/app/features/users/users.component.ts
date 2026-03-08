@@ -23,21 +23,21 @@ export class UsersComponent implements OnInit {
   form: FormGroup;
 
   roles: { value: UserRole; label: string }[] = [
-    { value: 'veterinarian', label: 'Veterinario' },
-    { value: 'assistant', label: 'Asistente' },
-    { value: 'admin', label: 'Administrador' },
+    { value: 'VETERINARIO', label: 'Veterinario' },
+    { value: 'ASISTENTE', label: 'Asistente' },
+    { value: 'ADMINISTRADOR', label: 'Administrador' },
   ];
 
   roleBadge: Record<string, string> = {
-    veterinarian: 'badge-vet',
-    assistant: 'badge-assistant',
-    admin: 'badge-admin',
+    Veterinario: 'badge-vet',
+    Asistente: 'badge-assistant',
+    Administrador: 'badge-admin',
   };
 
   roleLabel: Record<string, string> = {
-    veterinarian: 'Veterinario',
-    assistant: 'Asistente',
-    admin: 'Admin',
+    VETERINARIO: 'VETERINARIO',
+    ASISTENTE: 'Asistente',
+    ADMINISTRADOR: 'Admin',
   };
 
   constructor(
@@ -175,7 +175,7 @@ export class UsersComponent implements OnInit {
     return this.fb.group({
       name: [user?.name ?? '', Validators.required],
       email: [user?.email ?? '', [Validators.required, Validators.email]],
-      role: [user?.role ?? 'veterinarian', Validators.required],
+      role: [user?.role ?? 'VETERINARIO', Validators.required],
       phone: [user?.phone ?? ''],
       address: [user?.address ?? ''],
 

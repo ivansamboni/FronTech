@@ -55,14 +55,14 @@ export class SidebarComponent {
   });
 
   roleLabels: Record<string, string> = {
-    veterinarian: 'Veterinario',
-    assistant: 'Asistente',
-    admin: 'Amin',
+    VETERINARIO: 'Veterinario',
+    ASISTENTE: 'Asistente',
+    ADMINISTRADOR: 'Amin',
   };
 
   constructor(public authService: AuthService) {}
 
   logout(): void {
-    this.authService.logout;
+    this.authService.logout();
   }
 }

@@ -7,18 +7,26 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
+  // Si la URL es la del login, no inyectamos el token
+  if (req.url.includes('/users/login')) {
+    return next(req);
+  }
+
   const authReq = token
     ? req.clone({
-        headers: req.headers.set('Autorizacion', `Bearer ${token}`),
+        headers: req.headers.set('Authorization', `Bearer ${token}`),
       })
     : req;
 
-  return next(authReq).pipe(
-    catchError((error) => {
-      if (error.status === 401) {
-        authService.logout();
-      }
-      return throwError(() => error);
-    }),
-  );
+    return next(authReq).pipe(
+
+      catchError((error) => {
+  
+        if (error.status === 401) {
+  
+          authService.logout();  
+        }  
+        return throwError(() => error);  
+      }),  
+    );
 };
