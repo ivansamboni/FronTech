@@ -4,9 +4,12 @@ export interface Pet {
   name: string;
   type: string;
   yearOld?: string;       // 👈 camelCase, viene así del backend
-  observation?: string;
-  clientId: number;       // 👈 camelCase, viene así del backend
-  clientName?: string;    // 👈 nombre del dueño incluido en PetDTO
+  observation?: string; 
+  clientId: number; 
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  clientAddress: string;   // 👈 nombre del dueño incluido en PetDTO
 }
 
 export interface CreatePetDTO {

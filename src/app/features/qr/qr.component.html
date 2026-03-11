@@ -1,5 +1,5 @@
 <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start">
-  <!-- LISTA DE MASCOTAS -->
+
   <div>
     <div class="page-header">
       <h1 class="page-title">QR & <span>Links</span></h1>
@@ -7,34 +7,23 @@
 
     <div class="section">
       <div class="section-header">
-        <span class="section-title">{{ filtered.length }} mascotas</span>
+        <span class="section-title">{{ filtered().length }} mascotas</span>
         <div class="search-wrap">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" />
           </svg>
-          <input
-            class="search-input"
-            type="text"
-            placeholder="Buscar mascota o dueño..."
-            (input)="onSearch($any($event.target).value)"
-          />
+          <input class="search-input" type="text" placeholder="Buscar mascota o dueño..."
+            (input)="onSearch($any($event.target).value)" />
         </div>
       </div>
 
-      @if (loading) {
+      @if (loading()) {
         <div class="empty">
           <div class="empty-icon">⏳</div>
           <p>Cargando...</p>
         </div>
-      } @else if (filtered.length === 0) {
+      } @else if (filtered().length === 0) {
         <div class="empty">
           <div class="empty-icon">🐾</div>
           <p>No hay mascotas</p>
@@ -43,47 +32,32 @@
         <table>
           <thead>
             <tr>
-              <th>Mascota</th>
-              <th>Tipo</th>
-              <th>Dueño</th>
-              <th>Compartir</th>
+              <th>Mascota</th><th>Tipo</th><th>Dueño</th><th>Compartir</th>
             </tr>
           </thead>
           <tbody>
-            @for (pet of filtered; track pet.id) {
-              <tr [style.background]="selectedPet?.id === pet.id ? 'var(--surface2)' : ''">
+            @for (pet of filtered(); track pet.id) {
+              <tr [style.background]="selectedPet()?.id === pet.id ? 'var(--surface2)' : ''">
                 <td>
                   <div class="cell-user">
                     <div class="avatar">{{ initials(pet.name) }}</div>
-                    <!-- 👈 pet.name, no pet.user.name -->
-                    <span [style.fontWeight]="selectedPet?.id === pet.id ? '600' : 'normal'">
+                    <span [style.fontWeight]="selectedPet()?.id === pet.id ? '600' : 'normal'">
                       {{ pet.name }}
-                      <!-- 👈 pet.name -->
                     </span>
                   </div>
                 </td>
-                <td>
-                  <span class="badge badge-pet">{{ pet.type }}</span>
-                </td>
-                <td style="color: var(--text2)">{{ getClientName(pet.clientId ) }}</td>
+                <td><span class="badge badge-pet">{{ pet.type }}</span></td>
+                <td style="color: var(--text2)">{{ getClientName(pet.clientId) }}</td>
                 <td>
                   <div style="display: flex; gap: 6px">
-                    <button
-                      class="btn btn-sm"
-                      [class.btn-primary]="selectedPet?.id === pet.id && mode === 'qr'"
-                      [class.btn-ghost]="!(selectedPet?.id === pet.id && mode === 'qr')"
-                      (click)="select(pet, 'qr')"
-                    >
-                      QR
-                    </button>
-                    <button
-                      class="btn btn-sm"
-                      [class.btn-primary]="selectedPet?.id === pet.id && mode === 'link'"
-                      [class.btn-ghost]="!(selectedPet?.id === pet.id && mode === 'link')"
-                      (click)="select(pet, 'link')"
-                    >
-                      Link
-                    </button>
+                    <button class="btn btn-sm"
+                      [class.btn-primary]="selectedPet()?.id === pet.id && mode() === 'qr'"
+                      [class.btn-ghost]="!(selectedPet()?.id === pet.id && mode() === 'qr')"
+                      (click)="select(pet, 'qr')">QR</button>
+                    <button class="btn btn-sm"
+                      [class.btn-primary]="selectedPet()?.id === pet.id && mode() === 'link'"
+                      [class.btn-ghost]="!(selectedPet()?.id === pet.id && mode() === 'link')"
+                      (click)="select(pet, 'link')">Link</button>
                   </div>
                 </td>
               </tr>
@@ -97,9 +71,8 @@
   <!-- PANEL DERECHO -->
   <div style="position: sticky; top: 24px">
     <div style="height: 72px"></div>
-
     <div class="section">
-      @if (!selectedPet) {
+      @if (!selectedPet()) {
         <div class="empty" style="padding: 48px 24px">
           <div style="font-size: 48px; margin-bottom: 12px">📱</div>
           <p style="font-weight: 600; margin-bottom: 4px">Selecciona una mascota</p>
@@ -107,194 +80,80 @@
         </div>
       } @else {
         <div style="padding: 24px">
-          <!-- Encabezado mascota -->
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px">
             <div class="avatar" style="width: 44px; height: 44px; font-size: 16px">
-              {{ initials(selectedPet.name) }}
-              <!-- 👈 pet.name -->
+              {{ initials(selectedPet()!.name) }}
             </div>
             <div>
               <div style="font-family: 'DM Serif Display', serif; font-size: 20px">
-                {{ selectedPet.name }}
-                <!-- 👈 pet.name -->
+                {{ selectedPet()!.name }}
               </div>
               <div style="font-size: 13px; color: var(--text2)">
-                {{ selectedPet.type }} · {{ selectedPet.yearOld  }} años
+                {{ selectedPet()!.type }} · {{ selectedPet()!.yearOld }} años
               </div>
             </div>
           </div>
 
-          <!-- Tabs QR / Link -->
-          <div
-            style="
-              display: flex;
-              gap: 2px;
-              background: var(--surface2);
-              border-radius: 8px;
-              padding: 4px;
-              margin-bottom: 20px;
-            "
-          >
+          <!-- Tabs -->
+          <div style="display:flex;gap:2px;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:20px">
             @for (m of ['qr', 'link']; track m) {
-              <button
-                (click)="switchMode(m === 'qr' ? 'qr' : 'link')"
-                style="
-                  flex: 1;
-                  padding: 8px 0;
-                  border: none;
-                  cursor: pointer;
-                  border-radius: 6px;
-                  font-family: inherit;
-                  font-size: 13px;
-                  font-weight: 600;
-                  transition: all 0.15s;
-                "
-                [style.background]="mode === m ? 'var(--surface)' : 'transparent'"
-                [style.color]="mode === m ? 'var(--text)' : 'var(--text2)'"
-                [style.boxShadow]="mode === m ? '0 1px 4px rgba(44,35,24,.10)' : 'none'"
-              >
+              <button (click)="switchMode(m === 'qr' ? 'qr' : 'link')"
+                style="flex:1;padding:8px 0;border:none;cursor:pointer;border-radius:6px;font-family:inherit;font-size:13px;font-weight:600;transition:all 0.15s"
+                [style.background]="mode() === m ? 'var(--surface)' : 'transparent'"
+                [style.color]="mode() === m ? 'var(--text)' : 'var(--text2)'"
+                [style.boxShadow]="mode() === m ? '0 1px 4px rgba(44,35,24,.10)' : 'none'">
                 {{ m === 'qr' ? '📷 Código QR' : '🔗 Enlace' }}
               </button>
             }
           </div>
 
-          <!-- ── MODO QR ── -->
-          @if (mode === 'qr') {
-            <div
-              style="
-                background: var(--bg);
-                border-radius: 12px;
-                padding: 16px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 220px;
-                margin-bottom: 16px;
-                border: 1px solid var(--border);
-              "
-            >
-              @if (generating) {
-                <span style="color: var(--text2); font-size: 13px">Generando QR...</span>
-              } @else if (qrDataUrl) {
-                <img [src]="qrDataUrl" alt="QR Code" style="border-radius: 8px; max-width: 100%" />
+          @if (mode() === 'qr') {
+            <div style="background:var(--bg);border-radius:12px;padding:16px;display:flex;justify-content:center;align-items:center;min-height:220px;margin-bottom:16px;border:1px solid var(--border)">
+              @if (generating()) {
+                <span style="color:var(--text2);font-size:13px">Generando QR...</span>
+              } @else if (qrDataUrl()) {
+                <img [src]="qrDataUrl()" alt="QR Code" style="border-radius:8px;max-width:100%" />
               }
             </div>
-
-            <div
-              style="
-                background: var(--surface2);
-                border-radius: 8px;
-                padding: 8px 12px;
-                font-family: monospace;
-                font-size: 11px;
-                color: var(--text2);
-                word-break: break-all;
-                margin-bottom: 16px;
-              "
-            >
-              {{ getPetUrl(selectedPet) }}
+            <div style="background:var(--surface2);border-radius:8px;padding:8px 12px;font-family:monospace;font-size:11px;color:var(--text2);word-break:break-all;margin-bottom:16px">
+              {{ getPetUrl(selectedPet()!) }}
             </div>
-
-            <div style="display: flex; gap: 8px">
-              <button class="btn btn-primary" style="flex: 1" (click)="downloadQR()">
-                ⬇ Descargar PNG
-              </button>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary" style="flex:1" (click)="downloadQR()">⬇ Descargar PNG</button>
               <button class="btn btn-ghost" (click)="printQR()">🖨 Imprimir</button>
             </div>
           }
 
-          <!-- ── MODO LINK ── -->
-          @if (mode === 'link') {
-            <div
-              style="
-                background: var(--bg);
-                border-radius: 12px;
-                padding: 24px;
-                text-align: center;
-                margin-bottom: 16px;
-                border: 1px solid var(--border);
-              "
-            >
-              <div style="font-size: 40px; margin-bottom: 12px">🔗</div>
-              <div
-                style="
-                  font-family: monospace;
-                  font-size: 12px;
-                  color: var(--text2);
-                  word-break: break-all;
-                  line-height: 1.6;
-                  background: var(--surface);
-                  border-radius: 8px;
-                  padding: 10px 14px;
-                "
-              >
-                {{ getPetUrl(selectedPet) }}
+          @if (mode() === 'link') {
+            <div style="background:var(--bg);border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;border:1px solid var(--border)">
+              <div style="font-size:40px;margin-bottom:12px">🔗</div>
+              <div style="font-family:monospace;font-size:12px;color:var(--text2);word-break:break-all;line-height:1.6;background:var(--surface);border-radius:8px;padding:10px 14px">
+                {{ getPetUrl(selectedPet()!) }}
               </div>
             </div>
-
-            <div style="display: flex; gap: 8px; margin-bottom: 10px">
-              <button class="btn btn-primary" style="flex: 1" (click)="copyLink()">
-                {{ copied ? '✅ ¡Copiado!' : '📋 Copiar enlace' }}
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <button class="btn btn-primary" style="flex:1" (click)="copyLink()">
+                {{ copied() ? '✅ ¡Copiado!' : '📋 Copiar enlace' }}
               </button>
-              <a
-                class="btn btn-ghost"
-                [href]="getPetUrl(selectedPet)"
-                target="_blank"
-                rel="noopener"
-                >↗ Abrir</a
-              >
+              <a class="btn btn-ghost" [href]="getPetUrl(selectedPet()!)" target="_blank" rel="noopener">↗ Abrir</a>
             </div>
-            <a
-              class="btn btn-ghost"
-              [href]="whatsappUrl(selectedPet)"
-              target="_blank"
-              rel="noopener"
-              style="
-                width: 100%;
-                justify-content: center;
-                text-decoration: none;
-                color: #25d366;
-                border-color: #c8f0d8;
-                background: #f0fdf4;
-              "
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"
-                />
-                <path
-                  d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.856L.057 23.784c-.074.273.175.522.448.448l5.928-1.476A11.952 11.952 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.65-.502-5.176-1.381l-.371-.217-3.854.96.976-3.767-.235-.386A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"
-                />
-              </svg>
+            <a class="btn btn-ghost" [href]="whatsappUrl(selectedPet()!)" target="_blank" rel="noopener"
+              style="width:100%;justify-content:center;text-decoration:none;color:#25d366;border-color:#c8f0d8;background:#f0fdf4">
               Compartir por WhatsApp
             </a>
-                    }
+          }
 
-          <!-- Info dueño -->
-          @if (getClient(selectedPet.clientId ); as client) {
-            <div
-              style="
-                background: var(--surface2);
-                border-radius: 10px;
-                padding: 14px;
-                margin-top: 16px;
-                font-size: 13px;
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
-              "
-            >
-              @if (client.user.name) {
-                <!-- 👈 client.user.name -->
-                <div><span style="color: var(--text2)">Dueño: </span>{{ client.user.name }}</div>
+          @if (getClient(selectedPet()!.clientId); as client) {
+            <div style="background:var(--surface2);border-radius:10px;padding:14px;margin-top:16px;font-size:13px;display:flex;flex-direction:column;gap:6px">
+              @if (client.name) {
+                <div><span style="color:var(--text2)">Dueño: </span>{{ client.name }}</div>
               }
-              <!-- 👈 client.user.name -->
               @if (client.phone) {
-                <div><span style="color: var(--text2)">Tel: </span>{{ client.phone }}</div>
+                <div><span style="color:var(--text2)">Tel: </span>{{ client.phone }}</div>
               }
-              @if (selectedPet.observation) {
-                <div style="border-top: 1px solid var(--border); padding-top: 6px; margin-top: 2px">
-                  <span style="color: var(--text2)">Obs: </span>{{ selectedPet.observation }}
+              @if (selectedPet()!.observation) {
+                <div style="border-top:1px solid var(--border);padding-top:6px;margin-top:2px">
+                  <span style="color:var(--text2)">Obs: </span>{{ selectedPet()!.observation }}
                 </div>
               }
             </div>

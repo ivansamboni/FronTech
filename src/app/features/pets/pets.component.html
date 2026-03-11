@@ -1,5 +1,4 @@
 <div>
-  <!-- ENCABEZADO -->
   <div class="page-header">
     <h1 class="page-title">Mascotas <span>Registradas</span></h1>
     <button class="btn btn-primary" (click)="openCreate()">
@@ -10,30 +9,25 @@
     </button>
   </div>
 
-  <!-- TABLA -->
   <div class="section">
     <div class="section-header">
-      <span class="section-title">{{ filtered.length }} mascotas</span>
+      <span class="section-title">{{ filtered().length }} mascotas</span>
       <div class="search-wrap">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8" />
           <path d="M21 21l-4.35-4.35" />
         </svg>
-        <input
-          class="search-input"
-          type="text"
-          placeholder="Buscar mascota o dueño..."
-          (input)="onSearch($any($event.target).value)"
-        />
+        <input class="search-input" type="text" placeholder="Buscar mascota o dueño..."
+          (input)="onSearch($any($event.target).value)" />
       </div>
     </div>
 
-    @if (loading) {
+    @if (loading()) {
       <div class="empty">
         <div class="empty-icon">⏳</div>
         <p>Cargando...</p>
       </div>
-    } @else if (filtered.length === 0) {
+    } @else if (filtered().length === 0) {
       <div class="empty">
         <div class="empty-icon">🐾</div>
         <p>No hay mascotas</p>
@@ -42,16 +36,11 @@
       <table>
         <thead>
           <tr>
-            <th>Mascota</th>
-            <th>Tipo</th>
-            <th>Edad</th>
-            <th>Dueño</th>
-            <th>Observaciones</th>
-            <th>Acciones</th>
+            <th>Mascota</th><th>Tipo</th><th>Edad</th><th>Dueño</th><th>Observaciones</th><th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          @for (pet of filtered; track pet.id) {
+          @for (pet of filtered(); track pet.id) {
             <tr>
               <td>
                 <div class="cell-user">
@@ -59,19 +48,11 @@
                   {{ pet.name }}
                 </div>
               </td>
-              <td>
-                <span class="badge badge-pet">{{ pet.type }}</span>
-              </td>
-              <td style="color: var(--text2)">{{ pet.yearOld }} años</td>          <!-- 👈 -->
-              <td style="color: var(--text2)">{{ getClientName(pet.clientId) }}</td> <!-- 👈 -->
+              <td><span class="badge badge-pet">{{ pet.type }}</span></td>
+              <td style="color: var(--text2)">{{ pet.yearOld }} años</td>
+              <td style="color: var(--text2)">{{ getClientName(pet.clientId) }}</td>
               <td style="color: var(--text2); max-width: 200px">
-                {{
-                  pet.observation
-                    ? pet.observation.length > 40
-                      ? pet.observation.slice(0, 40) + '...'
-                      : pet.observation
-                    : '—'
-                }}
+                {{ pet.observation ? (pet.observation.length > 40 ? pet.observation.slice(0, 40) + '...' : pet.observation) : '—' }}
               </td>
               <td>
                 <div style="display: flex; gap: 6px">
@@ -99,14 +80,11 @@
   </div>
 </div>
 
-<!-- MODAL -->
-@if (showModal) {
+@if (showModal()) {
   <div class="overlay" (click)="closeModal()">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2 class="modal-title">
-          {{ selectedPet ? 'Editar Mascota' : 'Nueva Mascota' }}
-        </h2>
+        <h2 class="modal-title">{{ selectedPet() ? 'Editar Mascota' : 'Nueva Mascota' }}</h2>
         <button class="modal-close" (click)="closeModal()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6 6 18M6 6l12 12" />
@@ -114,40 +92,36 @@
         </button>
       </div>
 
-      @if (error) {
-        <div style="background: #fdecea; border: 1px solid #f5c6c2; border-radius: 8px;
-                    padding: 10px 14px; font-size: 13px; color: #c0392b; margin-bottom: 16px;">
-          {{ error }}
+      @if (error()) {
+        <div style="background:#fdecea;border:1px solid #f5c6c2;border-radius:8px;padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:16px">
+          {{ error() }}
         </div>
       }
 
       <form [formGroup]="form" (ngSubmit)="onSave()">
         <div class="form-grid">
 
-          <!-- Dueño -->
           <div class="form-group full">
             <label>Dueño</label>
-            <select formControlName="clientId">                          <!-- 👈 -->
+            <select formControlName="clientId">
               <option value="" disabled>Selecciona un cliente</option>
-              @for (client of clients; track client.id) {
-                <option [value]="client.id">{{ client.name }} — {{ client.email }}</option> <!-- 👈 -->
+              @for (client of clients(); track client.id) {
+                <option [value]="client.id">{{ client.name }} — {{ client.email }}</option>
               }
             </select>
-            @if (isInvalid('clientId')) {                               <!-- 👈 -->
-              <span style="font-size: 11px; color: #c0392b">{{ getError('clientId') }}</span>
+            @if (isInvalid('clientId')) {
+              <span style="font-size:11px;color:#c0392b">{{ getError('clientId') }}</span>
             }
           </div>
 
-          <!-- Nombre -->
           <div class="form-group">
             <label>Nombre</label>
             <input type="text" formControlName="name" placeholder="Ej: Luna" />
             @if (isInvalid('name')) {
-              <span style="font-size: 11px; color: #c0392b">{{ getError('name') }}</span>
+              <span style="font-size:11px;color:#c0392b">{{ getError('name') }}</span>
             }
           </div>
 
-          <!-- Tipo -->
           <div class="form-group">
             <label>Tipo</label>
             <select formControlName="type">
@@ -157,29 +131,25 @@
             </select>
           </div>
 
-          <!-- Edad -->
           <div class="form-group">
             <label>Edad (años)</label>
-            <input type="text" formControlName="yearOld" placeholder="Ej: 3" /> <!-- 👈 -->
-            @if (isInvalid('yearOld')) {                                          <!-- 👈 -->
-              <span style="font-size: 11px; color: #c0392b">{{ getError('yearOld') }}</span>
+            <input type="text" formControlName="yearOld" placeholder="Ej: 3" />
+            @if (isInvalid('yearOld')) {
+              <span style="font-size:11px;color:#c0392b">{{ getError('yearOld') }}</span>
             }
           </div>
 
-          <!-- Observaciones -->
           <div class="form-group full">
             <label>Observaciones médicas</label>
-            <textarea
-              formControlName="observation"
-              placeholder="Alergias, condiciones especiales, tratamientos..."
-            ></textarea>
+            <textarea formControlName="observation"
+              placeholder="Alergias, condiciones especiales, tratamientos..."></textarea>
           </div>
         </div>
 
         <div class="form-actions">
           <button type="button" class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary" [disabled]="saving">
-            {{ saving ? 'Guardando...' : selectedPet ? 'Guardar cambios' : 'Crear mascota' }}
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Guardando...' : selectedPet() ? 'Guardar cambios' : 'Crear mascota' }}
           </button>
         </div>
       </form>

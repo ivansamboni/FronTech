@@ -19,8 +19,9 @@ export class PetsService {
   }
 
   getByIdentifier(identifier: string): Observable<Pet> {
-    return this.http.get<Pet>(`${this.base}pets/by-identifier/${identifier}`);
-  }
+    return this.http.get<Pet>(`${environment.apiUrl}/by-identifier/${identifier}`);
+}
+  
 
   getById(id: number): Observable<Pet> {
     return this.http.get<Pet>(`${this.base}/${id}`);
