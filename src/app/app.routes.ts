@@ -9,6 +9,11 @@ export const routes: Routes = [
     canActivate: [guestGuard],
   },
   {
+    path: 'registerpet',
+    loadComponent: () =>
+      import('./features/register-pet/register-pet').then((m) => m.RegisterPet),
+  },
+  {
     path: 'pet/:identifier',
     loadComponent: () =>
       import('./features/pet-public/pet-public.component').then((m) => m.PetPublicComponent),

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { UsersService } from '../../core/services';
 import { User, CreateUserDTO, UpdateUserDTO, UserRole } from '../../core/models';
 
@@ -11,33 +12,35 @@ import { User, CreateUserDTO, UpdateUserDTO, UserRole } from '../../core/models'
   templateUrl: './users.component.html',
 })
 export class UsersComponent implements OnInit {
-  users: User[] = [];
-  filtered: User[] = [];
-  loading = true;
-  saving = false;
-  showModal = false;
-  selectedUser: User | null = null;
-  searchTerm = '';
-  error = '';
+
+  // ── State con Signals
+  users = signal<User[]>([]);
+  filtered = signal<User[]>([]);
+  loading = signal(true);
+  saving = signal(false);
+  showModal = signal(false);
+  selectedUser = signal<User | null>(null);
+  searchTerm = signal('');
+  error = signal('');
 
   form: FormGroup;
 
   roles: { value: UserRole; label: string }[] = [
-    { value: 'veterinarian', label: 'Veterinario' },
-    { value: 'assistant', label: 'Asistente' },
-    { value: 'admin', label: 'Administrador' },
+    { value: 'CLIENTE', label: 'cliente' },
+    { value: 'ASISTENTE', label: 'Asistente' },
+    { value: 'ADMINISTRADOR', label: 'Administrador' },
   ];
 
   roleBadge: Record<string, string> = {
-    veterinarian: 'badge-vet',
-    assistant: 'badge-assistant',
-    admin: 'badge-admin',
+    CLIENTE: 'badge-vet',
+    ASISTENTE: 'badge-assistant',
+    ADMINISTRADOR: 'badge-admin',
   };
 
   roleLabel: Record<string, string> = {
-    veterinarian: 'Veterinario',
-    assistant: 'Asistente',
-    admin: 'Admin',
+    CLIENTE: 'Cliente',
+    ASISTENTE: 'Asistente',
+    ADMINISTRADOR: 'Administrador',
   };
 
   constructor(
@@ -51,101 +54,87 @@ export class UsersComponent implements OnInit {
     this.loadUsers();
   }
 
-  loadUsers(): void {
-    this.loading = true;
-    this.usersService.getAll().subscribe({
-      next: (users) => {
-        this.users = users;
-        this.filtered = users;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      },
-    });
+  async loadUsers(): Promise<void> {
+    this.loading.set(true);
+    try {
+      const users = await firstValueFrom(this.usersService.getAll());
+      this.users.set(users);
+      this.filtered.set([...users]);
+    } catch (err: any) {
+      console.error('❌ loadUsers error:', err.status, err.error);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   onSearch(term: string): void {
-    this.searchTerm = term;
+    this.searchTerm.set(term);
     const t = term.toLowerCase();
-    this.filtered = this.users.filter(
-      (u) =>
-        u.name.toLowerCase().includes(t) ||
-        u.email.toLowerCase().includes(t) ||
-        u.role.toLowerCase().includes(t),
+    this.filtered.set(
+      this.users().filter(
+        (u) =>
+          u.name.toLowerCase().includes(t) ||
+          u.email.toLowerCase().includes(t) ||
+          u.role.toLowerCase().includes(t),
+      ),
     );
   }
 
   openCreate(): void {
-    this.selectedUser = null;
-    this.error = '';
+    this.selectedUser.set(null);
+    this.error.set('');
     this.form = this.buildForm();
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   openEdit(user: User): void {
-    this.selectedUser = user;
-    this.error = '';
-
+    this.selectedUser.set(user);
+    this.error.set('');
     this.form = this.buildForm(user);
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   closeModal(): void {
-    this.showModal = false;
-    this.selectedUser = null;
+    this.showModal.set(false);
+    this.selectedUser.set(null);
   }
 
-  onSave(): void {
+  async onSave(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.saving = true;
-    this.error = '';
+    this.saving.set(true);
+    this.error.set('');
 
-    if (this.selectedUser) {
-      const payload: UpdateUserDTO = { id: this.selectedUser.id, ...this.form.value };
-      this.usersService.update(this.selectedUser.id, payload).subscribe({
-        next: (updated) => {
-          this.users = this.users.map((u) => (u.id === updated.id ? updated : u));
-          this.filtered = this.users;
-          this.saving = false;
-          this.closeModal();
-        },
-        error: (err) => {
-          this.error = err.error?.message || 'Error al guardar';
-          this.saving = false;
-        },
-      });
-    } else {
-      const payload: CreateUserDTO = this.form.value;
-      this.usersService.create(payload).subscribe({
-        next: (created) => {
-          this.users = [...this.users, created];
-          this.filtered = this.users;
-          this.saving = false;
-          this.closeModal();
-        },
-        error: (err) => {
-          this.error = err.error?.message || 'Error al crear usuario';
-          this.saving = false;
-        },
-      });
+    try {
+      if (this.selectedUser()) {
+        const { password, ...formData } = this.form.value;
+        const payload: UpdateUserDTO = { id: this.selectedUser()!.id, ...formData };
+        await firstValueFrom(this.usersService.update(this.selectedUser()!.id, payload));
+      } else {
+        const payload: CreateUserDTO = this.form.value;
+        await firstValueFrom(this.usersService.create(payload));
+      }
+      await this.loadUsers(); // recarga la lista tras guardar
+      this.closeModal();
+    } catch (err: any) {
+      this.error.set(err.error?.message || 'Error al guardar');
+    } finally {
+      this.saving.set(false);
     }
   }
 
-  onDelete(user: User): void {
+  async onDelete(user: User): Promise<void> {
     if (!confirm(`¿Eliminar a ${user.name}?`)) return;
 
-    this.usersService.remove(user.id).subscribe({
-      next: () => {
-        this.users = this.users.filter((u) => u.id !== user.id);
-        this.filtered = this.users;
-      },
-      error: (err) => alert(err.error?.message || 'Error al eliminar'),
-    });
+    try {
+      await firstValueFrom(this.usersService.remove(user.id));
+      await this.loadUsers();
+    } catch (err: any) {
+      alert(err.error?.message || 'Error al eliminar');
+    }
   }
 
   isInvalid(field: string): boolean {
@@ -175,10 +164,9 @@ export class UsersComponent implements OnInit {
     return this.fb.group({
       name: [user?.name ?? '', Validators.required],
       email: [user?.email ?? '', [Validators.required, Validators.email]],
-      role: [user?.role ?? 'veterinarian', Validators.required],
+      role: [user?.role ?? 'CLIENTE', Validators.required],
       phone: [user?.phone ?? ''],
       address: [user?.address ?? ''],
-
       password: ['', user ? [] : [Validators.required, Validators.minLength(6)]],
     });
   }

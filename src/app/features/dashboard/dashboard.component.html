@@ -3,31 +3,24 @@
     <h1 class="page-title">Panel de <span>Control</span></h1>
   </div>
 
-  @if (loading) {
+  @if (loading()) {
     <div class="empty">
       <div class="empty-icon">⏳</div>
       <p>Cargando datos...</p>
     </div>
   } @else {
     <div class="stats-grid">
-      @for (stat of stats; track stat.label) {
+      @for (stat of stats(); track stat.label) {
         <div class="stat-card">
-          <svg
-            idth="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <path [attr.d]="stat.icon" />
           </svg>
-        </div>
-        <div>
-          <div class="stat-label">{{ stat.label }}</div>
-          <div class="stat-value">{{ stat.value }}</div>
+          <div>
+            <div class="stat-label">{{ stat.label }}</div>
+            <div class="stat-value">{{ stat.value }}</div>
+          </div>
         </div>
       }
     </div>
@@ -37,7 +30,7 @@
         <span class="section-title">Mascotas recientes</span>
       </div>
 
-      @if (pets.length === 0) {
+      @if (pets().length === 0) {
         <div class="empty">
           <div class="empty-icon">🐾</div>
           <p>No hay mascotas registradas aún</p>
@@ -46,32 +39,21 @@
         <table>
           <thead>
             <tr>
-              <th>Mascotas</th>
-              <th>Tipo</th>
-              <th>Edad</th>
-              <th>Dueño</th>
+              <th>Mascota</th><th>Tipo</th><th>Edad</th><th>Dueño</th>
             </tr>
           </thead>
           <tbody>
-            @for (pet of pets.slice(0, 8); track pet.id) {
+            @for (pet of pets().slice(0, 8); track pet.id) {
               <tr>
                 <td>
                   <div class="cell-user">
-                    <div class="avatar">
-                      {{ pet.name.slice(0, 2).toUpperCase() }}
-                    </div>
+                    <div class="avatar">{{ pet.name.slice(0, 2).toUpperCase() }}</div>
                     {{ pet.name }}
                   </div>
                 </td>
-                <td>
-                  <span class="badge badge-pet">
-                    {{ pet.type }}
-                  </span>
-                </td>
-                <td>{{ pet.year_old }} años</td>
-                <td style="color: var(--text2)">
-                  {{ getClientName(pet.client_id) }}
-                </td>
+                <td><span class="badge badge-pet">{{ pet.type }}</span></td>
+                <td>{{ pet.yearOld }} años</td>
+                <td style="color: var(--text2)">{{ getClientName(pet.clientId) }}</td>
               </tr>
             }
           </tbody>

@@ -1,16 +1,14 @@
 <div class="pub-page">
   <div class="pub-bg"></div>
 
-  <!-- CARGANDO -->
-  @if (estado === 'loading') {
+  @if (estado() === 'loading') {
     <div class="pub-loading">
       <div class="pub-spinner"></div>
       <p>Cargando perfil...</p>
     </div>
   }
 
-  <!-- NO ENCONTRADO -->
-  @if (estado === 'not-found') {
+  @if (estado() === 'not-found') {
     <div class="pub-card pub-error-card">
       <div class="pub-error-icon">🔍</div>
       <h2>Mascota no encontrada</h2>
@@ -18,8 +16,7 @@
     </div>
   }
 
-  <!-- ERROR -->
-  @if (estado === 'error') {
+  @if (estado() === 'error') {
     <div class="pub-card pub-error-card">
       <div class="pub-error-icon">⚠️</div>
       <h2>Error de conexión</h2>
@@ -27,71 +24,61 @@
     </div>
   }
 
-  <!-- PERFIL DE MASCOTA -->
-  @if (estado === 'found' && pet) {
+  @if (estado() === 'found' && pet()) {
     <div class="pub-card">
-      <!-- Header clínica -->
+
       <div class="pub-header">
         <div class="pub-clinic-logo">Vet<span>Care</span></div>
         <div class="pub-clinic-tag">Perfil de Mascota</div>
       </div>
 
-      <!-- Avatar + nombre -->
       <div class="pub-hero">
-        <div class="pub-avatar">{{ initials(pet.name) }}</div>
-        <h1 class="pub-name">{{ pet.name }}</h1>
-        <div class="pub-identifier">
-          {{ pet.identifier ?? 'ID-' + pet.id }}
-        </div>
+        <div class="pub-avatar">{{ initials(pet()!.name) }}</div>
+        <h1 class="pub-name">{{ pet()!.name }}</h1>
+        <div class="pub-identifier">{{ pet()!.identifier ?? 'ID-' + pet()!.id }}</div>
       </div>
 
-      <!-- Datos de la mascota -->
       <div class="pub-section">
         <div class="pub-section-title">🐾 Datos de la Mascota</div>
         <div class="pub-grid">
           <div class="pub-item">
             <span class="pub-item-label">Tipo</span>
-            <span class="pub-item-value">{{ pet.type }}</span>
+            <span class="pub-item-value">{{ pet()!.type }}</span>
           </div>
           <div class="pub-item">
             <span class="pub-item-label">Edad</span>
-            <span class="pub-item-value">{{ pet.year_old }} años</span>
+            <span class="pub-item-value">{{ pet()!.yearOld }} años</span>
           </div>
         </div>
       </div>
 
-      <!-- Datos del dueño -->
-      @if (client) {
+      @if (pet()!.clientName) {
         <div class="pub-section">
           <div class="pub-section-title">👤 Datos del Dueño</div>
           <div class="pub-grid">
-            @if (client.name) {
-              <div class="pub-item pub-item-full">
-                <span class="pub-item-label">Nombre</span>
-                <span class="pub-item-value">{{ client.name }}</span>
-              </div>
-            }
-            @if (client.phone) {
-              <div class="pub-item pub-item-full">
-                <span class="pub-item-label">Teléfono</span>
-                <a class="pub-item-value pub-phone" [href]="'tel:' + client.phone">
-                  📞 {{ client.phone }}
-                </a>
-              </div>
-            }
+            <div class="pub-item pub-item-full">
+              <span class="pub-item-label">Nombre</span>
+              <span class="pub-item-value">{{ pet()!.clientName }}</span>
+            </div>
+            <div class="pub-item">
+              <span class="pub-item-label">Teléfono</span>
+              <span class="pub-item-value">{{ pet()!.clientPhone }}</span>
+            </div>
+            <div class="pub-item">
+              <span class="pub-item-label">Dirección</span>
+              <span class="pub-item-value">{{ pet()!.clientAddress }}</span>
+            </div>
           </div>
         </div>
       }
 
-      <!-- Observaciones médicas -->
-      @if (pet.observation) {
+      @if (pet()!.observation) {
         <div class="pub-section pub-obs">
           <div class="pub-section-title">📋 Observaciones Médicas</div>
-          <p class="pub-obs-text">{{ pet.observation }}</p>
+          <p class="pub-obs-text">{{ pet()!.observation }}</p>
         </div>
       }
 
       <div class="pub-footer">Generado por VetCare · Sistema de Gestión Veterinaria</div>
     </div>
   }
-</div>

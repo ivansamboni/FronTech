@@ -1,0 +1,14 @@
+.wrapper {
+    display: flex;
+    justify-content: center; /* Centrado horizontal */
+    align-items: center;     /* Centrado vertical */
+    min-height: 100vh;       /* Ocupa toda la altura de la pantalla */
+    background-color: #f8f9fa; /* Un color de fondo suave para resaltar la card */
+    padding: 30px;
+  }
+  
+  .card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Agregamos sombra para profundidad */
+    border-radius: 12px;
+    overflow: hidden;
+  }

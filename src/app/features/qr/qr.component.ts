@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import QRCode from 'qrcode';
@@ -15,17 +15,18 @@ type Mode = 'qr' | 'link';
   templateUrl: './qr.component.html',
 })
 export class QrComponent implements OnInit {
-  pets: Pet[] = [];
-  filtered: Pet[] = [];
-  clients: Client[] = [];
 
-  loading = true;
-  generating = false; // true mientras se genera el QR
-  copied = false; // true por 2 segundos después de copiar
+  pets = signal<Pet[]>([]);
+  filtered = signal<Pet[]>([]);
+  clients = signal<Client[]>([]);
 
-  selectedPet: Pet | null = null;
-  mode: Mode = 'qr';
-  qrDataUrl = ''; // imagen del QR en base64
+  loading = signal(true);
+  generating = signal(false);
+  copied = signal(false);
+
+  selectedPet = signal<Pet | null>(null);
+  mode = signal<Mode>('qr');
+  qrDataUrl = signal('');
 
   constructor(
     private petsService: PetsService,
@@ -38,80 +39,75 @@ export class QrComponent implements OnInit {
       clients: this.clientsService.getAll(),
     }).subscribe({
       next: ({ pets, clients }) => {
-        this.pets = pets;
-        this.filtered = pets;
-        this.clients = clients;
-        this.loading = false;
+        this.pets.set(pets);
+        this.filtered.set(pets);
+        this.clients.set(clients);
+        this.loading.set(false);
       },
-      error: () => {
-        this.loading = false;
-      },
+      error: () => this.loading.set(false),
     });
   }
 
-  // BÚSQUEDA
   onSearch(term: string): void {
     const t = term.toLowerCase();
-    this.filtered = this.pets.filter(
-      (p) =>
-        p.name.toLowerCase().includes(t) ||
-        p.type.toLowerCase().includes(t) ||
-        this.getClientName(p.client_id).toLowerCase().includes(t),
+    this.filtered.set(
+      this.pets().filter(
+        (p) =>
+          p.name.toLowerCase().includes(t) ||
+          p.type.toLowerCase().includes(t) ||
+          this.getClientName(p.clientId).toLowerCase().includes(t),
+      )
     );
   }
 
-  // SELECCIONAR MASCOTA Y MODO
   select(pet: Pet, mode: Mode): void {
-    this.selectedPet = pet;
-    this.mode = mode;
-    this.qrDataUrl = '';
-    this.copied = false;
-
+    this.selectedPet.set(pet);
+    this.mode.set(mode);
+    this.qrDataUrl.set('');
+    this.copied.set(false);
     if (mode === 'qr') this.generateQR(pet);
   }
 
   switchMode(mode: Mode): void {
-    this.mode = mode;
-    this.copied = false;
-    if (mode === 'qr' && this.selectedPet && !this.qrDataUrl) {
-      this.generateQR(this.selectedPet);
+    this.mode.set(mode);
+    this.copied.set(false);
+    if (mode === 'qr' && this.selectedPet() && !this.qrDataUrl()) {
+      this.generateQR(this.selectedPet()!);
     }
   }
 
-  // GENERAR QR
   private async generateQR(pet: Pet): Promise<void> {
-    this.generating = true;
+    this.generating.set(true);
     try {
-      this.qrDataUrl = await QRCode.toDataURL(this.getPetUrl(pet), {
+      this.qrDataUrl.set(await QRCode.toDataURL(this.getPetUrl(pet), {
         width: 400,
         margin: 2,
         color: { dark: '#2c2318', light: '#fffdf9' },
         errorCorrectionLevel: 'H',
-      });
+      }));
     } catch (e) {
       console.error('Error generando QR:', e);
     } finally {
-      this.generating = false;
+      this.generating.set(false);
     }
   }
 
-  // DESCARGAR QR
   downloadQR(): void {
-    if (!this.qrDataUrl || !this.selectedPet) return;
+    if (!this.qrDataUrl() || !this.selectedPet()) return;
     const a = document.createElement('a');
-    a.href = this.qrDataUrl;
-    a.download = `QR_${this.selectedPet.name}_${this.selectedPet.identifier ?? this.selectedPet.id}.png`;
+    a.href = this.qrDataUrl();
+    a.download = `QR_${this.selectedPet()!.name}_${this.selectedPet()!.identifier ?? this.selectedPet()!.id}.png`;
     a.click();
   }
 
-  // IMPRIMIR QR
   printQR(): void {
-    if (!this.qrDataUrl || !this.selectedPet) return;
-    const client = this.getClient(this.selectedPet.client_id);
+    if (!this.qrDataUrl() || !this.selectedPet()) return;
+    const pet = this.selectedPet()!;
+    const clientName = this.getClientName(pet.clientId);
     const win = window.open('', '_blank')!;
     win.document.write(`
       <!DOCTYPE html><html><head>
-        <title>QR - ${this.selectedPet.name}</title>
+        <title>QR - ${pet.name}</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;600&display=swap');
           body { font-family:'DM Sans',sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; background:#f5f0eb }
@@ -126,36 +122,31 @@ export class QrComponent implements OnInit {
       </head><body>
         <div class="card">
           <div class="logo">Vet<span>Care</span></div>
-          <div class="name">${this.selectedPet.name}</div>
-          <div class="meta">${this.selectedPet.type} · ${this.selectedPet.year_old} años · ${client?.name ?? ''}</div>
-          <img src="${this.qrDataUrl}" width="220"/>
-          <div class="id">${this.selectedPet.identifier ?? `ID-${this.selectedPet.id}`}</div>
+          <div class="name">${pet.name}</div>
+          <div class="meta">${pet.type} · ${pet.yearOld} años · ${clientName}</div>
+          <img src="${this.qrDataUrl()}" width="220"/>
+          <div class="id">${pet.identifier ?? `ID-${pet.id}`}</div>
         </div>
       </body></html>
     `);
     win.document.close();
     win.focus();
-    setTimeout(() => {
-      win.print();
-      win.close();
-    }, 500);
+    setTimeout(() => { win.print(); win.close(); }, 500);
   }
 
-  // COPIAR ENLACE
   async copyLink(): Promise<void> {
-    if (!this.selectedPet) return;
-    await navigator.clipboard.writeText(this.getPetUrl(this.selectedPet));
-    this.copied = true;
-    setTimeout(() => (this.copied = false), 2200);
+    if (!this.selectedPet()) return;
+    await navigator.clipboard.writeText(this.getPetUrl(this.selectedPet()!));
+    this.copied.set(true);
+    setTimeout(() => this.copied.set(false), 2200);
   }
 
-  // HELPERS
   getPetUrl(pet: Pet): string {
     return `${window.location.origin}/pet/${pet.identifier ?? pet.id}`;
   }
 
   getClient(clientId: number): Client | undefined {
-    return this.clients.find((c) => c.id === clientId);
+    return this.clients().find((c) => c.id === clientId);
   }
 
   getClientName(clientId: number): string {
@@ -163,12 +154,7 @@ export class QrComponent implements OnInit {
   }
 
   initials(name: string): string {
-    return name
-      .split(' ')
-      .slice(0, 2)
-      .map((w) => w[0])
-      .join('')
-      .toUpperCase();
+    return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
   }
 
   whatsappUrl(pet: Pet): string {

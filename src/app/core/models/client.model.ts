@@ -1,10 +1,14 @@
+import { User } from './user.model';
+import { Pet } from './pet.model';
+
 export interface Client {
   id: number;
-  name?: string;
-  email: string;
-  address?: string;
+  name: string;     
+  email: string; 
   phone?: string;
-  password?: string;
+  address?: string;
+  user: User;  
+  pets?: Pet[];
   created_at?: string;
   updated_at?: string;
 }
