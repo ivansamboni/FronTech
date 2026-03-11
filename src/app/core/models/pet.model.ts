@@ -16,7 +16,7 @@ export interface CreatePetDTO {
   clientId: number;
   name: string;
   type: string;
-  year_old: string;
+  yearOld: string;
   observation: string;
 }
 
@@ -25,6 +25,6 @@ export interface UpdatePetDTO {
   clientId?: number;
   name?: string;
   type?: string;
-  year_old?: string;
+  yearOld?: string;
   observation?: string;
 }

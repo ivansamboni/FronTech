@@ -44,7 +44,12 @@ export class LoginComponent {
 
     this.authService.login(this.form.value).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        const user = this.authService.currentUser();
+        if (user?.role === 'CLIENTE') {
+          this.router.navigate(['/client-portal']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.error = err.error?.message || 'Credenciales incorrectas.';

@@ -10,13 +10,21 @@ export const routes: Routes = [
   },
   {
     path: 'registerpet',
-    loadComponent: () =>
-      import('./features/register-pet/register-pet').then((m) => m.RegisterPet),
+    loadComponent: () => import('./features/register-pet/register-pet').then((m) => m.RegisterPet),
   },
   {
     path: 'pet/:identifier',
     loadComponent: () =>
       import('./features/pet-public/pet-public.component').then((m) => m.PetPublicComponent),
+  },
+
+  {
+    path: 'client-portal',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/client-portal/client-portal.component').then(
+        (m) => m.ClientPortalComponent,
+      ),
   },
 
   {
@@ -52,5 +60,5 @@ export const routes: Routes = [
     ],
   },
 
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'login' },
 ];
