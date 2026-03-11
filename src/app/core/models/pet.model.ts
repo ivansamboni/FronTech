@@ -1,15 +1,16 @@
 export interface Pet {
   id: number;
   identifier?: string;
-  client_id: number;
   name: string;
   type: string;
-  year_old: string;
-  observation: string;
+  yearOld?: string;       // 👈 camelCase, viene así del backend
+  observation?: string;
+  clientId: number;       // 👈 camelCase, viene así del backend
+  clientName?: string;    // 👈 nombre del dueño incluido en PetDTO
 }
 
 export interface CreatePetDTO {
-  client_id: number;
+  clientId: number;
   name: string;
   type: string;
   year_old: string;
@@ -18,7 +19,7 @@ export interface CreatePetDTO {
 
 export interface UpdatePetDTO {
   id: number;
-  client_id?: number;
+  clientId?: number;
   name?: string;
   type?: string;
   year_old?: string;

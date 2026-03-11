@@ -47,7 +47,7 @@ export class DashboardComponent implements OnInit {
   }
 
   getClientName(clientId: number): string {
-    return this.clients.find((c) => c.id === clientId)?.name ?? '_';
+    return this.clients.find((c) => c.id === clientId)?.user.name ?? '_';
   }
 
   get stats() {

@@ -15,17 +15,18 @@ type Mode = 'qr' | 'link';
   templateUrl: './qr.component.html',
 })
 export class QrComponent implements OnInit {
+
   pets: Pet[] = [];
   filtered: Pet[] = [];
   clients: Client[] = [];
 
   loading = true;
-  generating = false; // true mientras se genera el QR
-  copied = false; // true por 2 segundos después de copiar
+  generating = false;
+  copied = false;
 
   selectedPet: Pet | null = null;
   mode: Mode = 'qr';
-  qrDataUrl = ''; // imagen del QR en base64
+  qrDataUrl = '';
 
   constructor(
     private petsService: PetsService,
@@ -43,30 +44,25 @@ export class QrComponent implements OnInit {
         this.clients = clients;
         this.loading = false;
       },
-      error: () => {
-        this.loading = false;
-      },
+      error: () => { this.loading = false; },
     });
   }
 
-  // BÚSQUEDA
   onSearch(term: string): void {
     const t = term.toLowerCase();
     this.filtered = this.pets.filter(
       (p) =>
         p.name.toLowerCase().includes(t) ||
         p.type.toLowerCase().includes(t) ||
-        this.getClientName(p.client_id).toLowerCase().includes(t),
+        this.getClientName(p.clientId).toLowerCase().includes(t), // 👈 clientId
     );
   }
 
-  // SELECCIONAR MASCOTA Y MODO
   select(pet: Pet, mode: Mode): void {
     this.selectedPet = pet;
     this.mode = mode;
     this.qrDataUrl = '';
     this.copied = false;
-
     if (mode === 'qr') this.generateQR(pet);
   }
 
@@ -78,7 +74,6 @@ export class QrComponent implements OnInit {
     }
   }
 
-  // GENERAR QR
   private async generateQR(pet: Pet): Promise<void> {
     this.generating = true;
     try {
@@ -95,7 +90,6 @@ export class QrComponent implements OnInit {
     }
   }
 
-  // DESCARGAR QR
   downloadQR(): void {
     if (!this.qrDataUrl || !this.selectedPet) return;
     const a = document.createElement('a');
@@ -104,10 +98,9 @@ export class QrComponent implements OnInit {
     a.click();
   }
 
-  // IMPRIMIR QR
   printQR(): void {
     if (!this.qrDataUrl || !this.selectedPet) return;
-    const client = this.getClient(this.selectedPet.client_id);
+    const clientName = this.getClientName(this.selectedPet.clientId); // 👈 clientId
     const win = window.open('', '_blank')!;
     win.document.write(`
       <!DOCTYPE html><html><head>
@@ -127,7 +120,7 @@ export class QrComponent implements OnInit {
         <div class="card">
           <div class="logo">Vet<span>Care</span></div>
           <div class="name">${this.selectedPet.name}</div>
-          <div class="meta">${this.selectedPet.type} · ${this.selectedPet.year_old} años · ${client?.name ?? ''}</div>
+          <div class="meta">${this.selectedPet.type} · ${this.selectedPet.yearOld} años · ${clientName}</div>  <!-- 👈 yearOld y clientName -->
           <img src="${this.qrDataUrl}" width="220"/>
           <div class="id">${this.selectedPet.identifier ?? `ID-${this.selectedPet.id}`}</div>
         </div>
@@ -135,13 +128,9 @@ export class QrComponent implements OnInit {
     `);
     win.document.close();
     win.focus();
-    setTimeout(() => {
-      win.print();
-      win.close();
-    }, 500);
+    setTimeout(() => { win.print(); win.close(); }, 500);
   }
 
-  // COPIAR ENLACE
   async copyLink(): Promise<void> {
     if (!this.selectedPet) return;
     await navigator.clipboard.writeText(this.getPetUrl(this.selectedPet));
@@ -149,7 +138,6 @@ export class QrComponent implements OnInit {
     setTimeout(() => (this.copied = false), 2200);
   }
 
-  // HELPERS
   getPetUrl(pet: Pet): string {
     return `${window.location.origin}/pet/${pet.identifier ?? pet.id}`;
   }
@@ -159,20 +147,17 @@ export class QrComponent implements OnInit {
   }
 
   getClientName(clientId: number): string {
-    return this.getClient(clientId)?.name ?? '—';
+    return this.getClient(clientId)?.name ?? '—';  // 👈 .name plano
   }
 
   initials(name: string): string {
-    return name
-      .split(' ')
-      .slice(0, 2)
-      .map((w) => w[0])
-      .join('')
-      .toUpperCase();
+    return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
   }
 
   whatsappUrl(pet: Pet): string {
     const text = encodeURIComponent(`Perfil de ${pet.name}: ${this.getPetUrl(pet)}`);
     return `https://wa.me/?text=${text}`;
   }
+
+  
 }

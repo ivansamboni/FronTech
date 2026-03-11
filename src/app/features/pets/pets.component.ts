@@ -15,7 +15,7 @@ import { Pet, CreatePetDTO, UpdatePetDTO, Client } from '../../core/models';
 export class PetsComponent implements OnInit {
   pets: Pet[] = [];
   filtered: Pet[] = [];
-  clients: Client[] = []; // para el select del formulario
+  clients: Client[] = [];
 
   loading = true;
   saving = false;
@@ -25,7 +25,6 @@ export class PetsComponent implements OnInit {
 
   form: FormGroup;
 
-  // Tipos de mascota para el select
   petTypes = ['Perro', 'Gato', 'Ave', 'Conejo', 'Reptil', 'Otro'];
 
   constructor(
@@ -47,29 +46,24 @@ export class PetsComponent implements OnInit {
         this.clients = clients;
         this.loading = false;
       },
-      error: () => {
-        this.loading = false;
-      },
+      error: () => { this.loading = false; },
     });
   }
 
-  // Busca el nombre del dueño dado el client_id de la mascota
   getClientName(clientId: number): string {
-    return this.clients.find((c) => c.id === clientId)?.name ?? '—';
+    return this.clients.find((c) => c.id === clientId)?.name ?? '—'; // 👈 .name plano
   }
 
-  // BÚSQUEDA
   onSearch(term: string): void {
     const t = term.toLowerCase();
     this.filtered = this.pets.filter(
       (p) =>
         p.name.toLowerCase().includes(t) ||
         p.type.toLowerCase().includes(t) ||
-        this.getClientName(p.client_id).toLowerCase().includes(t),
+        this.getClientName(p.clientId).toLowerCase().includes(t), // 👈 clientId
     );
   }
 
-  // MODAL
   openCreate(): void {
     this.selectedPet = null;
     this.error = '';
@@ -89,7 +83,6 @@ export class PetsComponent implements OnInit {
     this.selectedPet = null;
   }
 
-  // GUARDAR
   onSave(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -100,7 +93,6 @@ export class PetsComponent implements OnInit {
     this.error = '';
 
     if (this.selectedPet) {
-      // Editar
       const payload: UpdatePetDTO = { id: this.selectedPet.id, ...this.form.value };
       this.petsService.update(this.selectedPet.id, payload).subscribe({
         next: (updated) => {
@@ -115,7 +107,6 @@ export class PetsComponent implements OnInit {
         },
       });
     } else {
-      // Crear
       const payload: CreatePetDTO = this.form.value;
       this.petsService.create(payload).subscribe({
         next: (created) => {
@@ -132,7 +123,6 @@ export class PetsComponent implements OnInit {
     }
   }
 
-  // ELIMINAR
   onDelete(pet: Pet): void {
     if (!confirm(`¿Eliminar a ${pet.name}?`)) return;
     this.petsService.remove(pet.id).subscribe({
@@ -144,7 +134,6 @@ export class PetsComponent implements OnInit {
     });
   }
 
-  // HELPERS
   isInvalid(field: string): boolean {
     const c = this.form.get(field);
     return !!(c?.invalid && c?.touched);
@@ -158,22 +147,17 @@ export class PetsComponent implements OnInit {
   }
 
   initials(name: string): string {
-    return name
-      .split(' ')
-      .slice(0, 2)
-      .map((w) => w[0])
-      .join('')
-      .toUpperCase();
+    return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
   }
 
   private buildForm(pet?: Pet): FormGroup {
     return this.fb.group({
-      // +() convierte el string del select a número
-      client_id: [pet?.client_id ?? '', Validators.required],
-      name: [pet?.name ?? '', Validators.required],
-      type: [pet?.type ?? 'Perro', Validators.required],
-      year_old: [pet?.year_old ?? '', Validators.required],
+      clientId:    [pet?.clientId    ?? '', Validators.required], // 👈 clientId
+      name:        [pet?.name        ?? '', Validators.required],
+      type:        [pet?.type        ?? 'Perro', Validators.required],
+      yearOld:     [pet?.yearOld     ?? '', Validators.required], // 👈 yearOld
       observation: [pet?.observation ?? ''],
+      identifier:  [pet?.identifier  ?? ''],
     });
   }
 }

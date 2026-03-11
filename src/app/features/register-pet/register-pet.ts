@@ -4,15 +4,17 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { forkJoin } from 'rxjs';
 import { ClientsService } from '../../core/services/clients.service';
 import { PetsService } from '../../core/services/pets.service';
-import { Client, CreateClientDTO, UpdateClientDTO, Pet } from '../../core/models';
+import { Client, CreateClientDTO, UpdateClientDTO } from '../../core/models';
+import { Pet } from '../../core/models';
 
 @Component({
-  selector: 'app-clients',
+  selector: 'app-register-pet',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './clients.component.html',
+  templateUrl: './register-pet.html',
+  styleUrl: './register-pet.css',
 })
-export class ClientsComponent implements OnInit {
+export class RegisterPet implements OnInit{
   clients        = signal<Client[]>([]);
   filtered       = signal<Client[]>([]);
   pets           = signal<Pet[]>([]);
@@ -20,7 +22,7 @@ export class ClientsComponent implements OnInit {
   saving         = signal(false);
   showModal      = signal(false);
   selectedClient = signal<Client | null>(null);
-  error          = signal('');
+  error          = signal(''); 
 
   form: FormGroup;
 
@@ -46,8 +48,7 @@ export class ClientsComponent implements OnInit {
       error: () => this.loading.set(false),
     });
   }
-
-  // ── Computed ──────────────────────────────────────────────
+  // Cuenta cuántas mascotas tiene un cliente
   petCount = (clientId: number) =>
     this.pets().filter((p) =>  p.clientId === clientId).length;
 
@@ -57,8 +58,8 @@ export class ClientsComponent implements OnInit {
     this.filtered.set(
       this.clients().filter(
         (c) =>
-          c.name?.toLowerCase().includes(t) ||    // 👈 c.name
-          c.email?.toLowerCase().includes(t) ||   // 👈 c.email
+          c.user.name?.toLowerCase().includes(t) ||   // 👈 c.user.name
+          c.user.email.toLowerCase().includes(t)  ||  // 👈 c.user.email
           c.phone?.toLowerCase().includes(t),
       ),
     );
@@ -129,7 +130,7 @@ export class ClientsComponent implements OnInit {
 
   // ── Eliminar ──────────────────────────────────────────────
   onDelete(client: Client): void {
-    if (!confirm(`¿Eliminar a ${client.name}?`)) return;  // 👈 client.user.name
+    if (!confirm(`¿Eliminar a ${client.user.name}?`)) return;  // 👈 client.user.name
     this.clientsService.remove(client.id).subscribe({
       next: () => {
         this.clients.update((list) => list.filter((c) => c.id !== client.id));
@@ -161,10 +162,10 @@ export class ClientsComponent implements OnInit {
 
   private buildForm(client?: Client): FormGroup {
     return this.fb.group({
-      name:     [client?.name    ?? '', Validators.required],   // 👈 client.name
-      email:    [client?.email   ?? '', [Validators.required, Validators.email]], // 👈 client.email
-      phone:    [client?.phone   ?? ''],
-      address:  [client?.address ?? ''],
+      name:     [client?.user.name  ?? '', Validators.required],   
+      email:    [client?.user.email ?? '', [Validators.required, Validators.email]],
+      phone:    [client?.phone      ?? ''],
+      address:  [client?.address    ?? ''],
       password: ['', client ? [] : [Validators.required, Validators.minLength(6)]],
     });
   }

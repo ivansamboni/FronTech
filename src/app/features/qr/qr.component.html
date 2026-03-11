@@ -55,18 +55,19 @@
                 <td>
                   <div class="cell-user">
                     <div class="avatar">{{ initials(pet.name) }}</div>
+                    <!-- 👈 pet.name, no pet.user.name -->
                     <span [style.fontWeight]="selectedPet?.id === pet.id ? '600' : 'normal'">
                       {{ pet.name }}
+                      <!-- 👈 pet.name -->
                     </span>
                   </div>
                 </td>
                 <td>
                   <span class="badge badge-pet">{{ pet.type }}</span>
                 </td>
-                <td style="color: var(--text2)">{{ getClientName(pet.client_id) }}</td>
+                <td style="color: var(--text2)">{{ getClientName(pet.clientId ) }}</td>
                 <td>
                   <div style="display: flex; gap: 6px">
-                    <!-- Botón QR -->
                     <button
                       class="btn btn-sm"
                       [class.btn-primary]="selectedPet?.id === pet.id && mode === 'qr'"
@@ -75,7 +76,6 @@
                     >
                       QR
                     </button>
-                    <!-- Botón Link -->
                     <button
                       class="btn btn-sm"
                       [class.btn-primary]="selectedPet?.id === pet.id && mode === 'link'"
@@ -111,13 +111,15 @@
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px">
             <div class="avatar" style="width: 44px; height: 44px; font-size: 16px">
               {{ initials(selectedPet.name) }}
+              <!-- 👈 pet.name -->
             </div>
             <div>
               <div style="font-family: 'DM Serif Display', serif; font-size: 20px">
                 {{ selectedPet.name }}
+                <!-- 👈 pet.name -->
               </div>
               <div style="font-size: 13px; color: var(--text2)">
-                {{ selectedPet.type }} · {{ selectedPet.year_old }} años
+                {{ selectedPet.type }} · {{ selectedPet.yearOld  }} años
               </div>
             </div>
           </div>
@@ -178,7 +180,6 @@
               }
             </div>
 
-            <!-- URL -->
             <div
               style="
                 background: var(--surface2);
@@ -240,12 +241,9 @@
                 [href]="getPetUrl(selectedPet)"
                 target="_blank"
                 rel="noopener"
+                >↗ Abrir</a
               >
-                ↗ Abrir
-              </a>
             </div>
-
-            <!-- WhatsApp -->
             <a
               class="btn btn-ghost"
               [href]="whatsappUrl(selectedPet)"
@@ -270,10 +268,10 @@
               </svg>
               Compartir por WhatsApp
             </a>
-          }
+                    }
 
           <!-- Info dueño -->
-          @if (getClient(selectedPet.client_id); as client) {
+          @if (getClient(selectedPet.clientId ); as client) {
             <div
               style="
                 background: var(--surface2);
@@ -286,9 +284,11 @@
                 gap: 6px;
               "
             >
-              @if (client.name) {
-                <div><span style="color: var(--text2)">Dueño: </span>{{ client.name }}</div>
+              @if (client.user.name) {
+                <!-- 👈 client.user.name -->
+                <div><span style="color: var(--text2)">Dueño: </span>{{ client.user.name }}</div>
               }
+              <!-- 👈 client.user.name -->
               @if (client.phone) {
                 <div><span style="color: var(--text2)">Tel: </span>{{ client.phone }}</div>
               }

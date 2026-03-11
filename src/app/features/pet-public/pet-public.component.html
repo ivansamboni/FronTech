@@ -55,30 +55,20 @@
           </div>
           <div class="pub-item">
             <span class="pub-item-label">Edad</span>
-            <span class="pub-item-value">{{ pet.year_old }} años</span>
+            <span class="pub-item-value">{{ pet.yearOld }} años</span>
           </div>
         </div>
       </div>
 
       <!-- Datos del dueño -->
-      @if (client) {
+      @if (pet.clientName) {                                <!-- 👈 pet.clientName -->
         <div class="pub-section">
           <div class="pub-section-title">👤 Datos del Dueño</div>
           <div class="pub-grid">
-            @if (client.name) {
-              <div class="pub-item pub-item-full">
-                <span class="pub-item-label">Nombre</span>
-                <span class="pub-item-value">{{ client.name }}</span>
-              </div>
-            }
-            @if (client.phone) {
-              <div class="pub-item pub-item-full">
-                <span class="pub-item-label">Teléfono</span>
-                <a class="pub-item-value pub-phone" [href]="'tel:' + client.phone">
-                  📞 {{ client.phone }}
-                </a>
-              </div>
-            }
+            <div class="pub-item pub-item-full">
+              <span class="pub-item-label">Nombre</span>
+              <span class="pub-item-value">{{ pet.clientName }}</span>  <!-- 👈 -->
+            </div>
           </div>
         </div>
       }

@@ -1,0 +1,63 @@
+<div class="wrapper">
+    <div class="card" style="width: 40rem;">
+      <img src="https://media.c5n.com/p/feecfdeab61d90040ff0d8d26d4e3c6e/adjuntos/326/imagenes/000/207/0000207121/790x0/smart/findpet-mascotas-app.png" width="100%" class="card-img-top" alt="...">
+      <div class="card-body">
+        <div class="registration-container">
+  
+          @if (error()) {                                          <!-- 👈 () -->
+            <div style="background: #fdecea; border: 1px solid #f5c6c2; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #c0392b; margin-bottom: 20px;">
+              {{ error() }}                                        <!-- 👈 () -->
+            </div>
+          }
+  
+          <form [formGroup]="form" (ngSubmit)="onSave()" class="registration-form">
+            <div class="form-grid">
+  
+              <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" formControlName="name" placeholder="Juan Pérez" />
+                @if (isInvalid('name')) {
+                  <span style="font-size: 11px; color: #c0392b">{{ getError('name') }}</span>
+                }
+              </div>
+  
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" formControlName="email" placeholder="correo@ejemplo.com" />
+                @if (isInvalid('email')) {
+                  <span style="font-size: 11px; color: #c0392b">{{ getError('email') }}</span>
+                }
+              </div>
+  
+              <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" formControlName="phone" placeholder="310-555-0101" />
+              </div>
+  
+              @if (!selectedClient()) {                            <!-- 👈 () -->
+                <div class="form-group">
+                  <label>Contraseña</label>
+                  <input type="password" formControlName="password" placeholder="Mínimo 6 caracteres" />
+                  @if (isInvalid('password')) {
+                    <span style="font-size: 11px; color: #c0392b">{{ getError('password') }}</span>
+                  }
+                </div>
+              }
+  
+              <div class="form-group full">
+                <label>Dirección</label>
+                <input type="text" formControlName="address" placeholder="Calle 123..." />
+              </div>
+            </div>
+  
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="saving()">   <!-- 👈 () -->
+                {{ saving() ? 'Guardando...' : selectedClient() ? 'Guardar cambios' : 'Registrarme' }}
+              </button>                                            <!-- 👈 () en ambos -->
+            </div>
+          </form>
+  
+        </div>
+      </div>
+    </div>
+  </div>
