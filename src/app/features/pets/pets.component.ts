@@ -13,7 +13,6 @@ import { Pet, CreatePetDTO, UpdatePetDTO, Client } from '../../core/models';
   templateUrl: './pets.component.html',
 })
 export class PetsComponent implements OnInit {
-
   pets = signal<Pet[]>([]);
   filtered = signal<Pet[]>([]);
   clients = signal<Client[]>([]);
@@ -62,7 +61,7 @@ export class PetsComponent implements OnInit {
           p.name.toLowerCase().includes(t) ||
           p.type.toLowerCase().includes(t) ||
           this.getClientName(p.clientId).toLowerCase().includes(t),
-      )
+      ),
     );
   }
 
@@ -98,7 +97,7 @@ export class PetsComponent implements OnInit {
       const payload: UpdatePetDTO = { id: this.selectedPet()!.id, ...this.form.value };
       this.petsService.update(this.selectedPet()!.id, payload).subscribe({
         next: (updated) => {
-          this.pets.update((list) => list.map((p) => p.id === updated.id ? updated : p));
+          this.pets.update((list) => list.map((p) => (p.id === updated.id ? updated : p)));
           this.filtered.set(this.pets());
           this.saving.set(false);
           this.closeModal();
@@ -109,7 +108,10 @@ export class PetsComponent implements OnInit {
         },
       });
     } else {
-      const payload: CreatePetDTO = this.form.value;
+      const identifier = this.form.value.identifier?.trim()
+        ? this.form.value.identifier.trim()
+        : `${(this.form.value.name as string).toUpperCase().replace(/\s+/g, '-')}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      const payload: CreatePetDTO = { ...this.form.value, identifier };
       this.petsService.create(payload).subscribe({
         next: (created) => {
           this.pets.update((list) => [...list, created]);
@@ -149,17 +151,22 @@ export class PetsComponent implements OnInit {
   }
 
   initials(name: string): string {
-    return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase();
   }
 
   private buildForm(pet?: Pet): FormGroup {
     return this.fb.group({
-      clientId:    [pet?.clientId    ?? '', Validators.required],
-      name:        [pet?.name        ?? '', Validators.required],
-      type:        [pet?.type        ?? 'Perro', Validators.required],
-      yearOld:     [pet?.yearOld     ?? '', Validators.required],
+      clientId: [pet?.clientId ?? '', Validators.required],
+      name: [pet?.name ?? '', Validators.required],
+      type: [pet?.type ?? 'Perro', Validators.required],
+      yearOld: [pet?.yearOld ?? '', Validators.required],
       observation: [pet?.observation ?? ''],
-      identifier:  [pet?.identifier  ?? ''],
+      identifier: [pet?.identifier ?? ''],
     });
   }
 }

@@ -47,11 +47,11 @@ export class ClientsComponent implements OnInit {
     });
   }
 
-  // ── Computed ──────────────────────────────────────────────
+  
   petCount = (clientId: number) =>
     this.pets().filter((p) =>  p.clientId === clientId).length;
 
-  // ── Búsqueda ─────────────────────────────────────────────
+  
   onSearch(term: string): void {
     const t = term.toLowerCase();
     this.filtered.set(
@@ -64,7 +64,7 @@ export class ClientsComponent implements OnInit {
     );
   }
 
-  // ── Modal ─────────────────────────────────────────────────
+  
   openCreate(): void {
     this.selectedClient.set(null);
     this.error.set('');
@@ -84,7 +84,7 @@ export class ClientsComponent implements OnInit {
     this.selectedClient.set(null);
   }
 
-  // ── Guardar ───────────────────────────────────────────────
+  
   onSave(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -127,7 +127,7 @@ export class ClientsComponent implements OnInit {
     }
   }
 
-  // ── Eliminar ──────────────────────────────────────────────
+  
   onDelete(client: Client): void {
     if (!confirm(`¿Eliminar a ${client.name}?`)) return;  // 👈 client.user.name
     this.clientsService.remove(client.id).subscribe({
@@ -139,7 +139,7 @@ export class ClientsComponent implements OnInit {
     });
   }
 
-  // ── Helpers ───────────────────────────────────────────────
+  
   isInvalid(field: string): boolean {
     const c = this.form.get(field);
     return !!(c?.invalid && c?.touched);

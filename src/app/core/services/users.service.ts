@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { User, CreateUserDTO, UpdateUserDTO, UserRole } from '../models';
 import { environment } from '../../../environments/Environment';
 
@@ -11,7 +11,11 @@ export class UsersService {
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<User[]> {  
-    return this.http.get<User[]>(this.apiUrl).pipe();
+    return this.http
+      .get<User[]>(this.apiUrl)
+      .pipe(
+        map((users) => users.filter((u) => u.role === 'ADMINISTRADOR' || u.role === 'ASISTENTE')),
+      );
   }
 
   getById(id: number): Observable<User> {  
