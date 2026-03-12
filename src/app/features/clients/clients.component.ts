@@ -38,6 +38,8 @@ export class ClientsComponent implements OnInit {
       pets: this.petsService.getAll(),
     }).subscribe({
       next: ({ clients, pets }) => {
+        console.log('clientes:', clients);
+        console.log('mascotas:', pets);
         this.clients.set(clients);
         this.filtered.set([...clients]);
         this.pets.set(pets);
@@ -48,9 +50,11 @@ export class ClientsComponent implements OnInit {
   }
 
   
-  petCount = (clientId: number) =>
-    this.pets().filter((p) =>  p.clientId === clientId).length;
-
+  petCount = (clientId: number) => {
+    const count = this.pets().filter((p) => p.clientId === clientId).length;
+    console.log('clientId:', clientId, 'pets:', this.pets().map(p => p.clientId), 'count:', count);
+    return count;
+  }
   
   onSearch(term: string): void {
     const t = term.toLowerCase();

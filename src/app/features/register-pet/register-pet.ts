@@ -1,20 +1,21 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { ClientsService } from '../../core/services/clients.service';
 import { PetsService } from '../../core/services/pets.service';
 import { Client, CreateClientDTO, UpdateClientDTO } from '../../core/models';
 import { Pet } from '../../core/models';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-register-pet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule,RouterModule],
   templateUrl: './register-pet.html',
   styleUrl: './register-pet.css',
 })
-export class RegisterPet implements OnInit{
+export class RegisterPet implements OnInit {
   clients        = signal<Client[]>([]);
   filtered       = signal<Client[]>([]);
   pets           = signal<Pet[]>([]);
@@ -22,7 +23,8 @@ export class RegisterPet implements OnInit{
   saving         = signal(false);
   showModal      = signal(false);
   selectedClient = signal<Client | null>(null);
-  error          = signal(''); 
+  error          = signal('');
+  success        = signal('');
 
   form: FormGroup;
 
@@ -36,36 +38,33 @@ export class RegisterPet implements OnInit{
 
   ngOnInit(): void {
     forkJoin({
-      clients: this.clientsService.getAll(),
+   
       pets: this.petsService.getAll(),
     }).subscribe({
-      next: ({ clients, pets }) => {
-        this.clients.set(clients);
-        this.filtered.set([...clients]);
+      next: ({  pets }) => {
+      
         this.pets.set(pets);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
   }
-  // Cuenta cuántas mascotas tiene un cliente
-  petCount = (clientId: number) =>
-    this.pets().filter((p) =>  p.clientId === clientId).length;
 
-  // ── Búsqueda ─────────────────────────────────────────────
+  petCount = (clientId: number) =>
+    this.pets().filter((p) => p.clientId === clientId).length;
+
   onSearch(term: string): void {
     const t = term.toLowerCase();
     this.filtered.set(
       this.clients().filter(
         (c) =>
-          c.user.name?.toLowerCase().includes(t) ||   // 👈 c.user.name
-          c.user.email.toLowerCase().includes(t)  ||  // 👈 c.user.email
+          c.user.name?.toLowerCase().includes(t) ||
+          c.user.email.toLowerCase().includes(t)  ||
           c.phone?.toLowerCase().includes(t),
       ),
     );
   }
 
-  // ── Modal ─────────────────────────────────────────────────
   openCreate(): void {
     this.selectedClient.set(null);
     this.error.set('');
@@ -85,7 +84,6 @@ export class RegisterPet implements OnInit{
     this.selectedClient.set(null);
   }
 
-  // ── Guardar ───────────────────────────────────────────────
   onSave(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -118,7 +116,9 @@ export class RegisterPet implements OnInit{
           this.clients.update((list) => [...list, created]);
           this.filtered.set([...this.clients()]);
           this.saving.set(false);
-          this.closeModal();
+          this.form.reset();
+          this.success.set('¡Registro exitoso! 🎉');
+          setTimeout(() => this.success.set(''), 3000);
         },
         error: (err) => {
           this.error.set(err.error?.message || 'Error al crear');
@@ -128,9 +128,8 @@ export class RegisterPet implements OnInit{
     }
   }
 
-  // ── Eliminar ──────────────────────────────────────────────
   onDelete(client: Client): void {
-    if (!confirm(`¿Eliminar a ${client.user.name}?`)) return;  // 👈 client.user.name
+    if (!confirm(`¿Eliminar a ${client.user.name}?`)) return;
     this.clientsService.remove(client.id).subscribe({
       next: () => {
         this.clients.update((list) => list.filter((c) => c.id !== client.id));
@@ -140,7 +139,6 @@ export class RegisterPet implements OnInit{
     });
   }
 
-  // ── Helpers ───────────────────────────────────────────────
   isInvalid(field: string): boolean {
     const c = this.form.get(field);
     return !!(c?.invalid && c?.touched);
@@ -162,7 +160,7 @@ export class RegisterPet implements OnInit{
 
   private buildForm(client?: Client): FormGroup {
     return this.fb.group({
-      name:     [client?.user.name  ?? '', Validators.required],   
+      name:     [client?.user.name  ?? '', Validators.required],
       email:    [client?.user.email ?? '', [Validators.required, Validators.email]],
       phone:    [client?.phone      ?? ''],
       address:  [client?.address    ?? ''],

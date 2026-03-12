@@ -7,6 +7,7 @@ export interface LoginCredentials {
 
 export interface AuthUser {
   id: number;
+  clientId?: number; 
   name: string;
   email: string;
   role: UserRole;

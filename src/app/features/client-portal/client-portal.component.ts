@@ -39,7 +39,7 @@ export class ClientPortalComponent implements OnInit {
     const user = this.authService.currentUser();
     if (!user) return;
 
-    this.petsService.getByClient(user.id).subscribe({
+    this.petsService.getByClient(user.clientId!).subscribe({
       next: (pets) => { this.pets.set(pets); this.loading.set(false); },
       error: ()    => { this.loading.set(false); },
     });
@@ -93,12 +93,12 @@ export class ClientPortalComponent implements OnInit {
       // CREAR — genera identifier automáticamente
       const nombre     = this.form.value.name as string;
       const random     = Math.random().toString(36).substring(2, 8).toUpperCase();
-      const identifier = `${nombre.toUpperCase().replace(/\s+/g, '-')}-${random}`;
+      //const identifier = `${nombre.toUpperCase().replace(/\s+/g, '-')}-${random}`;
 
       const payload: CreatePetDTO = {
         ...this.form.value,
-        clientId: user!.id,
-        identifier,
+        clientId: user!.clientId!,
+        //identifier,
       };
 
       this.petsService.create(payload).subscribe({

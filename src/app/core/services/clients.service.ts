@@ -9,12 +9,8 @@ export class ClientsService {
   private readonly apiUrl = `${environment.apiUrl}/clients`;
 
   constructor(private http: HttpClient) {}
-
   getAll(): Observable<Client[]> {
-    return this.http
-      .get<Client[]>(this.apiUrl)
-      .pipe(map((clients) => clients.filter((c) => c.user?.role === 'CLIENTE')));
-   
+    return this.http.get<Client[]>(this.apiUrl);
   }
 
   getById(id: number): Observable<Client> {
